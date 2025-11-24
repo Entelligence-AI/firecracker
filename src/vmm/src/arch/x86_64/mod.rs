@@ -191,7 +191,7 @@ pub fn configure_system_for_boot(
 
     let vcpu_config = VcpuConfig {
         vcpu_count: machine_config.vcpu_count,
-        smt: machine_config.smt,
+        smt: !machine_config.smt,
         cpu_config,
     };
 

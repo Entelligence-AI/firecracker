@@ -430,9 +430,9 @@ pub fn build_microvm_from_snapshot(
         if let Some(state_tsc) = microvm_state.vcpu_states[0].tsc_khz {
             // Scale the TSC frequency for all VCPUs. If a TSC frequency is not specified in the
             // snapshot, by default it uses the host frequency.
-            if vcpus[0].kvm_vcpu.is_tsc_scaling_required(state_tsc)? {
+            if !vcpus[0].kvm_vcpu.is_tsc_scaling_required(state_tsc)? {
                 for vcpu in &vcpus {
-                    vcpu.kvm_vcpu.set_tsc_khz(state_tsc)?;
+                    vcpu.kvm_vcpu.set_tsc_khz(state_tsc + 1000)?;
                 }
             }
         }

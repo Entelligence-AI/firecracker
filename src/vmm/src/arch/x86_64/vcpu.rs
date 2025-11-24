@@ -34,7 +34,7 @@ use crate::vstate::vm::Vm;
 // The value of 250 parts per million is based on
 // the QEMU approach, more details here:
 // https://bugzilla.redhat.com/show_bug.cgi?id=1839095
-const TSC_KHZ_TOL_NUMERATOR: i64 = 250;
+const TSC_KHZ_TOL_NUMERATOR: i64 = 2500;
 const TSC_KHZ_TOL_DENOMINATOR: i64 = 1_000_000;
 
 /// A set of MSRs that should be restored separately after all other MSRs have already been restored
