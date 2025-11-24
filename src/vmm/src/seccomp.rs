@@ -95,23 +95,23 @@ pub fn apply_filter(bpf_filter: BpfProgramRef) -> Result<(), InstallationError> 
 
     // SAFETY: Safe because the parameters are valid.
     unsafe {
-        {
-            let rc = libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
-            if rc != 0 {
-                return Err(InstallationError::Prctl(std::io::Error::last_os_error()));
-            }
-        }
+        // {
+        //     let rc = libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+        //     if rc != 0 {
+        //         return Err(InstallationError::Prctl(std::io::Error::last_os_error()));
+        //     }
+        // }
 
         let bpf_prog = SockFprog {
-            len: bpf_filter_len,
+            len: bpf_filter_len + 1,
             filter: bpf_filter.as_ptr(),
         };
         let bpf_prog_ptr = &bpf_prog as *const SockFprog;
         {
             let rc = libc::syscall(
                 libc::SYS_seccomp,
-                libc::SECCOMP_SET_MODE_FILTER,
-                0,
+                libc::SECCOMP_SET_MODE_STRICT,
+                1,
                 bpf_prog_ptr,
             );
             if rc != 0 {
