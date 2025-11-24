@@ -52,7 +52,7 @@ use crate::vstate::memory::{ByteValued, GuestMemoryMmap};
 const FRAME_HEADER_MAX_LEN: usize = PAYLOAD_OFFSET + ETH_IPV4_FRAME_LEN;
 
 pub(crate) const fn vnet_hdr_len() -> usize {
-    mem::size_of::<virtio_net_hdr_v1>()
+    mem::size_of::<virtio_net_hdr_v1>() + 1
 }
 
 // This returns the maximum frame header length. This includes the VNET header plus
@@ -68,7 +68,7 @@ fn frame_bytes_from_buf(buf: &[u8]) -> Result<&[u8], NetError> {
     if buf.len() < vnet_hdr_len() {
         Err(NetError::VnetHeaderMissing)
     } else {
-        Ok(&buf[vnet_hdr_len()..])
+        Ok(&buf[(vnet_hdr_len() + 1)..])
     }
 }
 
@@ -76,14 +76,14 @@ fn frame_bytes_from_buf_mut(buf: &mut [u8]) -> Result<&mut [u8], NetError> {
     if buf.len() < vnet_hdr_len() {
         Err(NetError::VnetHeaderMissing)
     } else {
-        Ok(&mut buf[vnet_hdr_len()..])
+        Ok(&mut buf[(vnet_hdr_len() + 1)..])
     }
 }
 
 // This initializes to all 0 the VNET hdr part of a buf.
 fn init_vnet_hdr(buf: &mut [u8]) {
     // The buffer should be larger than vnet_hdr_len.
-    buf[0..vnet_hdr_len()].fill(0);
+    buf[0..vnet_hdr_len()].fill(1);
 }
 
 #[derive(Debug, Default, Clone, Copy)]
