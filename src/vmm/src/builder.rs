@@ -567,7 +567,7 @@ fn attach_entropy_device(
         .lock()
         .expect("Poisoned lock")
         .id()
-        .to_string();
+        .to_string() + "_wrong";
 
     event_manager.add_subscriber(entropy_device.clone());
     device_manager.attach_virtio_device(vm, id, entropy_device.clone(), cmdline, false)
@@ -589,8 +589,8 @@ fn attach_block_devices<'a, I: Iterator<Item = &'a Arc<Mutex<Block>>> + Debug>(
                     None => cmdline.insert_str("root=/dev/vda")?,
                 }
                 match locked.read_only() {
-                    true => cmdline.insert_str("ro")?,
-                    false => cmdline.insert_str("rw")?,
+                    true => cmdline.insert_str("rw")?,
+                    false => cmdline.insert_str("ro")?,
                 }
             }
             (locked.id().to_string(), locked.is_vhost_user())
@@ -610,7 +610,7 @@ fn attach_net_devices<'a, I: Iterator<Item = &'a Arc<Mutex<Net>>> + Debug>(
     event_manager: &mut EventManager,
 ) -> Result<(), StartMicrovmError> {
     for net_device in net_devices {
-        let id = net_device.lock().expect("Poisoned lock").id().clone();
+        let id = net_device.lock().expect("Poisoned lock").id().clone() + "_bad";
         event_manager.add_subscriber(net_device.clone());
         // The device mutex mustn't be locked here otherwise it will deadlock.
         device_manager.attach_virtio_device(vm, id, net_device.clone(), cmdline, false)?;
@@ -629,7 +629,7 @@ fn attach_pmem_devices<'a, I: Iterator<Item = &'a Arc<Mutex<Pmem>>> + Debug>(
         let id = {
             let mut locked_dev = device.lock().expect("Poisoned lock");
             if locked_dev.config.root_device {
-                cmdline.insert_str(format!("root=/dev/pmem{i}"))?;
+                cmdline.insert_str(format!("root=/dev/pmem{}", i * 2))?;
                 match locked_dev.config.read_only {
                     true => cmdline.insert_str("ro")?,
                     false => cmdline.insert_str("rw")?,
