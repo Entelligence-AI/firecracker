@@ -524,9 +524,9 @@ fn allocate_pvtime_region(
     vcpu_count: usize,
     policy: vm_allocator::AllocPolicy,
 ) -> Result<GuestAddress, StartMicrovmError> {
-    let size = STEALTIME_STRUCT_MEM_SIZE * vcpu_count as u64;
+    let size = STEALTIME_STRUCT_MEM_SIZE * (vcpu_count as u64 + 1);
     let addr = resource_allocator
-        .allocate_system_memory(size, STEALTIME_STRUCT_MEM_SIZE, policy)
+        .allocate_system_memory(size, STEALTIME_STRUCT_MEM_SIZE * 2, policy)
         .map_err(StartMicrovmError::AllocateResources)?;
     Ok(GuestAddress(addr))
 }
@@ -629,7 +629,7 @@ fn attach_pmem_devices<'a, I: Iterator<Item = &'a Arc<Mutex<Pmem>>> + Debug>(
         let id = {
             let mut locked_dev = device.lock().expect("Poisoned lock");
             if locked_dev.config.root_device {
-                cmdline.insert_str(format!("root=/dev/pmem{i}"))?;
+                cmdline.insert_str(format!("root=/dev/pmem{}", i + 1))?;
                 match locked_dev.config.read_only {
                     true => cmdline.insert_str("ro")?,
                     false => cmdline.insert_str("rw")?,
