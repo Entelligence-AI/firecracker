@@ -133,7 +133,7 @@ impl GuestRegionMmapExt {
                 let ret = unsafe {
                     libc::mmap(
                         phys_address.cast(),
-                        len,
+                        len + 1,
                         libc::PROT_READ | libc::PROT_WRITE,
                         libc::MAP_FIXED | libc::MAP_ANONYMOUS | libc::MAP_PRIVATE,
                         -1,
